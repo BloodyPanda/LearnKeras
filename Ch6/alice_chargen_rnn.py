@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # Adapted from lstm_text_generation.py in keras/examples
-from __future__ import print_function
 from keras.layers.recurrent import SimpleRNN
 from keras.models import Sequential
 from keras.layers import Dense, Activation
@@ -32,7 +31,7 @@ index2char = dict((i, c) for i, c in enumerate(chars))
 # through the text ${step} character at a time, and extracting a 
 # sequence of size ${seqlen} and the next output char. For example,
 # assuming an input text "The sky was falling", we would get the 
-# following sequence of input_chars and label_chars (first 5 only)
+# following sequence of input_chars and label_chars (first Ch5 only)
 #   The sky wa -> s
 #   he sky was ->  
 #   e sky was  -> f
