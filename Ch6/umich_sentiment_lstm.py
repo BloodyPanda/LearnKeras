@@ -1,4 +1,4 @@
-from keras.layers.core import Activation, Dense, Dropout, SpatialDropout1D
+from keras.layers.core import Activation, Dense, SpatialDropout1D
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import nltk
 import numpy as np
 import pandas as pd
-import os
 
 data_train = pd.read_csv('./umich-si650-nlp/train.csv')
 data_test = pd.read_csv('./umich-si650-nlp/test.csv')
@@ -75,7 +74,7 @@ NUM_EPOCHS = 10
 model = Sequential()
 model.add(Embedding(vocab_size, EMBEDDING_SIZE,
                     input_length=MAX_SENTENCE_LENGTH))
-model.add(SpatialDropout1D(Dropout(0.2)))
+model.add(SpatialDropout1D(0.2))
 model.add(LSTM(HIDDEN_LAYER_SIZE, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1))
 model.add(Activation("sigmoid"))
@@ -87,12 +86,30 @@ history = model.fit(Xtrain, ytrain, batch_size=BATCH_SIZE,
                     epochs=NUM_EPOCHS,
                     validation_data=(Xtest, ytest))
 
+# plot loss and accuracy
 plt.subplot(211)
 plt.title("Accuracy")
-plt.plot(history.history["acc"], color='g', label="Train")
+plt.plot(history.history["acc"], color="g", label="Train")
 plt.plot(history.history["val_acc"], color="b", label="Validation")
+plt.legend(loc="best")
+
+plt.subplot(212)
+plt.title("Loss")
+plt.plot(history.history["loss"], color="g", label="Train")
+plt.plot(history.history["val_loss"], color="b", label="Validation")
 plt.legend(loc="best")
 
 plt.tight_layout()
 plt.show()
 
+# 评分
+score, acc = model.evaluate(Xtest, ytest, batch_size=BATCH_SIZE)
+print("Test score: %.3f, accuracy: %.3f" % (score, acc))
+
+for i in range(5):
+    idx = np.random.randint(len(Xtest))
+    xtest = Xtest[idx].reshape(1,40)
+    ylabel = ytest[idx]
+    ypred = model.predict(xtest)[0][0]
+    sent = " ".join([index2word[x] for x in xtest[0].tolist() if x != 0])
+    print("%.0f\t%d\t%s" % (ypred, ylabel, sent))
